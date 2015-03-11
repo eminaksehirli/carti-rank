@@ -29,7 +29,7 @@ public class TopKList<T extends Comparable<T>> implements RandomAccess,
 		{
 			insertPoint = -ix - 1;
 		}
-		if (insertPoint == list.size())
+		if (insertPoint == k)
 		{
 			return false;
 		}
