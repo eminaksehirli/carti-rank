@@ -95,7 +95,7 @@ public class RankBinaryExtender
 		int[][] carts = RankCartifier.readCarts(filename, numOfCarts);
 		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfItems, carts);
 
-//		RankTiler.printMatrix(rankMat, out);
+		// RankTiler.printMatrix(rankMat, out);
 
 		Map<Integer, Integer> freqs = findMaximals(dataArr, theta);
 		for (Entry<Integer, Integer> freq : freqs.entrySet())
@@ -110,7 +110,7 @@ public class RankBinaryExtender
 			@Override
 			public int compare(Tile o1, Tile o2)
 			{
-				return Integer.compare(o1.rows[0], o2.rows[0]);
+				return Integer.compare(o1.sr, o2.sr);
 			}
 		});
 
@@ -119,14 +119,14 @@ public class RankBinaryExtender
 		for (ListIterator<Tile> it = maxims.listIterator(); it.hasNext();)
 		{
 			Tile tile_1 = it.next();
-			int sr = tile_1.rows[0];
-			int sc = tile_1.cols[0];
+			int sr = tile_1.sr;
+			int sc = tile_1.sc;
 			ListIterator<Tile> it2 = maxims.listIterator(it.nextIndex());
 			while (it2.hasNext())
 			{
 				Tile tile_2 = it2.next();
-				int er = tile_2.rows[tile_2.rows.length - 1];
-				int ec = tile_2.cols[tile_2.cols.length - 1];
+				int er = tile_2.er;
+				int ec = tile_2.ec;
 				int score = scoreOfFreqTile(theta, rankMat, sc, sr, ec + 1, er + 1);
 				Tile newTile = RankTiler.newTile(score, sr, sc, er - 1, ec - 1);
 				mergeMap.put(newTile.score, new int[]

@@ -3,11 +3,7 @@ package cart.kulua;
 import static java.lang.System.currentTimeMillis;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import cart.Cartifier;
 import cart.io.InputFile;
@@ -150,7 +146,7 @@ public class RankPruner
 							continue startColumn;
 						}
 
-						tiles.add(newTile(tileSum, sr, sc, er, ec));
+						tiles.add(RankTiler.newTile(tileSum, sr, sc, er, ec));
 					}
 				}
 			}
@@ -160,107 +156,5 @@ public class RankPruner
 		// printMatrix(rankMat);
 		// out.flush();
 		return tiles;
-	}
-
-	private static List<List<Double>> arr2List(double[][] dataArr)
-	{
-		List<List<Double>> db = new ArrayList<>();
-		for (double[] row : dataArr)
-		{
-			List<Double> objList = new ArrayList<>(row.length);
-			for (double val : row)
-			{
-				objList.add(val);
-			}
-			db.add(objList);
-		}
-		return db;
-	}
-
-	static void printMatrix(int[][] rankMat, PrintStream matrixOut)
-	{
-		for (int[] row : rankMat)
-		{
-			for (int v : row)
-			{
-				// System.out.printf("%2d ", loc2Id[v]);
-				matrixOut.printf("%3d", v);
-			}
-			matrixOut.println();
-		}
-	}
-
-	// static int addToTiles(Tile tile, List<Tile> tiles)
-	// {
-	// if (tiles.size() == 0)
-	// {
-	// tiles.add(tile);
-	// return 0;
-	// }
-	//
-	// // if (tile.score >= tiles.get(tiles.size() - 1).score)
-	// // {
-	// // if (tiles.size() == topK)
-	// // {
-	// // return -1;
-	// // }
-	// // tiles.add(tile);
-	// // return tiles.size()-1;
-	// // }
-	//
-	// int ix = Collections.binarySearch(tiles, tile);
-	// int insertPoint = ix;
-	// if (ix < 0)
-	// {
-	// insertPoint = -ix - 1;
-	// }
-	// if (insertPoint == tiles.size())
-	// {
-	// return -1;
-	// }
-	// if (tiles.size() == topK)
-	// {
-	// tiles.remove(tiles.size() - 1);
-	// }
-	// tiles.add(insertPoint, tile);
-	// return insertPoint;
-	// }
-
-	static Tile newTile(int score, int sr, int sc, int er, int ec)
-	{
-		int[] rows = new int[er - sr + 1];
-		for (int r = sr; r <= er; r++)
-		{
-			rows[r - sr] = r;
-		}
-		int[] cols = new int[ec - sc + 1];
-		for (int c = sc; c <= ec; c++)
-		{
-			cols[c - sc] = c;
-		}
-		Tile tile = new Tile(score, rows, cols);
-		return tile;
-	}
-
-	static Set<Integer> findCoveringTiles(List<Tile> tiles, List<Tile> coverTiles)
-	{
-		Set<Integer> cover = new HashSet<>();
-		nextTile:
-		for (Tile tile : tiles)
-		{
-			for (int col : tile.cols)
-			{
-				if (cover.contains(col))
-				{
-					continue nextTile;
-				}
-			}
-			coverTiles.add(tile);
-			for (int col : tile.cols)
-			{
-				cover.add(col);
-			}
-		}
-		return cover;
 	}
 }

@@ -6,11 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.io.NullOutputStream;
 
 import cart.Cartifier;
 import cart.io.InputFile;
@@ -19,7 +18,8 @@ import dm.cartification.rank.RankCartifier;
 public class RankTiler
 {
 	private static PrintStream out;
-//	private static PrintStream matrixOut = new PrintStream(new NullOutputStream());
+	// private static PrintStream matrixOut = new PrintStream(new
+	// NullOutputStream());
 	static
 	{
 		try
@@ -98,7 +98,6 @@ public class RankTiler
 		int[][] carts = RankCartifier.readCarts(filename, numOfCarts);
 
 		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfItems, carts);
-
 
 		for (int rowIx = 0; rowIx < rankMat.length; rowIx++)
 		{
@@ -209,27 +208,28 @@ public class RankTiler
 
 	static Tile newTile(int score, int sr, int sc, int er, int ec)
 	{
-		int[] rows = new int[er - sr + 1];
-		for (int r = sr; r <= er; r++)
-		{
-			rows[r - sr] = r;
-		}
-		int[] cols = new int[ec - sc + 1];
-		for (int c = sc; c <= ec; c++)
-		{
-			cols[c - sc] = c;
-		}
-		Tile tile = new Tile(score, rows, cols);
+		// int[] rows = new int[er - sr + 1];
+		// for (int r = sr; r <= er; r++)
+		// {
+		// rows[r - sr] = r;
+		// }
+		// int[] cols = new int[ec - sc + 1];
+		// for (int c = sc; c <= ec; c++)
+		// {
+		// cols[c - sc] = c;
+		// }
+		// Tile tile = new Tile(score, rows, cols);
+		Tile tile = new Tile(score, sr, sc, er, ec);
 		return tile;
 	}
 
-	static Set<Integer> findCoveringTiles(List<Tile> tiles, List<Tile> coverTiles)
+	static Set<Integer> findCoveringTiles(Collection<Tile> tiles, List<Tile> coverTiles)
 	{
 		Set<Integer> cover = new HashSet<>();
 		nextTile:
 		for (Tile tile : tiles)
 		{
-			for (int col : tile.cols)
+			for (int col : tile.cols())
 			{
 				if (cover.contains(col))
 				{
@@ -237,7 +237,7 @@ public class RankTiler
 				}
 			}
 			coverTiles.add(tile);
-			for (int col : tile.cols)
+			for (int col : tile.cols())
 			{
 				cover.add(col);
 			}

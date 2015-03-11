@@ -1,20 +1,32 @@
 package cart.kulua;
 
-import cern.colt.Arrays;
-
 class Tile implements Comparable<Tile>
 {
 	double score;
-	int[] rows, cols;
+	// int[] rows, cols;
 	private IdMapper mapper;
+	final int sr;
+	final int sc;
+	final int er;
+	final int ec;
 
-	Tile(double score, int[] rows, int[] cols)
+	Tile(double score, int sr, int sc, int er, int ec)
 	{
 		this.score = score;
-		this.rows = rows;
-		this.cols = cols;
+		this.sr = sr;
+		this.sc = sc;
+		this.er = er;
+		this.ec = ec;
 		this.mapper = new DirectMapper();
 	}
+
+	// Tile(double score, int[] rows, int[] cols)
+	// {
+	// this.score = score;
+	// this.rows = rows;
+	// this.cols = cols;
+	// this.mapper = new DirectMapper();
+	// }
 
 	void setMapper(IdMapper mapper)
 	{
@@ -30,9 +42,15 @@ class Tile implements Comparable<Tile>
 	@Override
 	public String toString()
 	{
-		return score + ", " + Arrays.toString(mapper.map(rows)) + "~"
-				+ Arrays.toString(mapper.map(cols));
+		return String.format("%f, [%d-%d]~[%d-%d]", score, sr, er, sc, ec);
 	}
+
+	// @Override
+	// public String toString()
+	// {
+	// return score + ", " + Arrays.toString(mapper.map(rows)) + "~"
+	// + Arrays.toString(mapper.map(cols));
+	// }
 
 	static interface IdMapper
 	{
@@ -46,6 +64,15 @@ class Tile implements Comparable<Tile>
 		{
 			return ids;
 		}
+	}
 
+	public int[] cols()
+	{
+		int[] cols = new int[ec - sc + 1];
+		for (int c = sc; c <= ec; c++)
+		{
+			cols[c - sc] = c;
+		}
+		return mapper.map(cols);
 	}
 }
