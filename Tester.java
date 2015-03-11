@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +46,14 @@ public class Tester
 
 		out = new PrintStream(File.createTempFile(
 				"TilerLog-" + new File(fileName).getName(), ".txt"));
-		int topK = 1000;
+		int topK = 4;
 
 		Table<String, Integer, Long> times = HashBasedTable.create();
 		// Map<String, Long> times = new HashMap<>();
 
 		RankBinaryExtender binary = new RankBinaryExtender(input, numOfItems);
-		RankTiler tiler = new RankTiler(input, numOfItems);
-		RankExpander expander = new RankExpander(input, numOfItems);
+		RankTiler tiler = new RankNaiveTiler(input, numOfItems);
+		RankTiler expander = new RankExpander(input, numOfItems);
 		RankPruner pruner = new RankPruner(input, numOfItems);
 		double[][] dataArr = input.getData().toArray(new double[0][]);
 		for (int theta = (int) (clusterSize * 0.25); theta < clusterSize * 2; theta += 1)
@@ -99,7 +100,7 @@ public class Tester
 
 			{
 				long start = currentTimeMillis();
-				List<Tile> tiles = tiler.runFor(theta, topK);
+				Collection<Tile> tiles = tiler.runFor(theta, topK);
 				times.put("tiler", theta, currentTimeMillis() - start);
 				coverEvaluateAndPrint(tiles, trueClusters, theta, numOfItems, "tilCov");
 				double coverage = flatten(tiles).size() / ((double) numOfItems);
@@ -118,7 +119,7 @@ public class Tester
 
 			{
 				long start = currentTimeMillis();
-				List<Tile> tiles = pruner.runFor(theta, topK);
+				Collection<Tile> tiles = pruner.runFor(theta, topK);
 				times.put("prun", theta, currentTimeMillis() - start);
 
 				coverEvaluateAndPrint(tiles, trueClusters, theta, numOfItems, "pruCov");
@@ -163,7 +164,7 @@ public class Tester
 			final String name)
 	{
 		List<Tile> coverTiles = new ArrayList<>();
-		Set<Integer> cover = RankTiler.findCoveringTiles(tiles, coverTiles);
+		Set<Integer> cover = RankNaiveTiler.findCoveringTiles(tiles, coverTiles);
 		double coverage = cover.size() / ((double) numOfItems);
 
 		evaluatePrint(coverTiles, trueClusters, theta, name, coverage);

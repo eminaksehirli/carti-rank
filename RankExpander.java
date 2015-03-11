@@ -1,16 +1,12 @@
 package cart.kulua;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 
-import cart.Cartifier;
 import cart.io.InputFile;
-import dm.cartification.rank.RankCartifier;
 
-public class RankExpander
+public class RankExpander extends RankTiler
 {
 	public static void main(String[] args) throws IOException
 	{
@@ -30,7 +26,7 @@ public class RankExpander
 
 		RankExpander tiler = new RankExpander(InputFile.forMime(fileName),
 				numOfItems);
-		Collection<Tile> coverTiles = tiler.runFor(theta, 1000);
+		Collection<Tile> coverTiles = tiler.runFor(theta, 4);
 		System.out.println("========================");
 		for (Tile tile : coverTiles)
 		{
@@ -38,72 +34,14 @@ public class RankExpander
 		}
 	}
 
-	private InputFile input;
-	private int numOfItems;
-	private static PrintStream out;
-
-	static
-	{
-		try
-		{
-			out = new PrintStream(File.createTempFile("expand-log", ".txt"));
-		} catch (IOException e)
-		{
-			out = System.err;
-			e.printStackTrace();
-		}
-	}
-
 	public RankExpander(InputFile input, int numOfItems)
 	{
-		this.input = input;
-		this.numOfItems = numOfItems;
+		super(input, numOfItems);
 	}
 
-	Collection<Tile> runFor(int theta, int topK) throws IOException
+	@Override
+	protected void findTiles(int[][] rankMat, List<Tile> tiles, int psr, int per)
 	{
-		out.println(theta);
-		int numOfCarts = numOfItems;
-		// InputFile input = InputFile.forMime(fileName);
-		double[][] dataArr = input.getData().toArray(new double[0][]);
-		// int minSupport = 10;
-		// RankTiler.topK = 1000;
-		// List<Tile> tiles = new TopKList<>(1000);
-
-		// List<Pair> pairs = RankTiler.dataToPairs(dataArr);
-		//
-		// List<List<Double>> db = RankTiler.toSortedDb(dataArr, pairs);
-
-		SortedDb db = SortedDb.from(dataArr);
-		Cartifier cartifier = new Cartifier(db.db);
-
-		String filename = "/a/cartified.gz";
-		cartifier.cartifyNumeric(new int[]
-		{ 0 }, filename);
-
-		int[][] carts = RankCartifier.readCarts(filename, numOfCarts);
-		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfItems, carts);
-		for (int rowIx = 0; rowIx < rankMat.length; rowIx++)
-		{
-			for (int cIx = 0; cIx < rankMat[rowIx].length; cIx++)
-			{
-				rankMat[rowIx][cIx] -= theta;
-			}
-		}
-
-		// RankTiler.printMatrix(rankMat, out);
-
-		// int topK = 1000;
-		List<Tile> tiles = new TopKList<>(topK);
-		// List<Tile> allTiles = new TopKList<>(4);
-
-		// for (int i = 0; i < 10; i++)
-		// {
-		// List<Tile> tiles = new TopKList<>(2);
-		// Collection<Tile> tiles = new CoveringMinimals();
-		// sc: start column, sr: start row, ec: end column, er: end row
-		int psr = 0;
-		int per = rankMat.length;
 		startRow:
 		for (int sr = psr; sr < per; sr++)
 		{
@@ -160,7 +98,7 @@ public class RankExpander
 						}
 						tileSum += newRowSum;
 						er++;
-						tiles.add(RankTiler.newTile(tileSum, sr, sc, er, ec));
+						tiles.add(RankNaiveTiler.newTile(tileSum, sr, sc, er, ec));
 						extendRight = true;
 
 					}
@@ -175,25 +113,5 @@ public class RankExpander
 				}
 			}
 		}
-
-		// Tile tile = tiles.get(0);
-		// for (int r = tile.sr; r <= tile.er; r++)
-		// {
-		// for (int c = tile.sc; c <= tile.ec; c++)
-		// {
-		// rankMat[r][c] = rankMat.length * 3;
-		// }
-		// }
-		//
-		// allTiles.add(tile);
-		// }
-		out.flush();
-		return tiles;
-		// List<Tile> coverTiles = new ArrayList<>();
-		// Set<Integer> cover = RankTiler.findCoveringTiles(tiles, coverTiles);
-
-		// System.out.println("# Coverage: " + cover.size() + " of " + numOfItems);
-		// printMerge(mergeMap, coverTiles);
-		// return coverTiles;
 	}
 }
