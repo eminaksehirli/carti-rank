@@ -95,7 +95,12 @@ public class RankExpander
 
 		// int topK = 1000;
 		List<Tile> tiles = new TopKList<>(topK);
+		// List<Tile> allTiles = new TopKList<>(4);
 
+		// for (int i = 0; i < 10; i++)
+		// {
+		// List<Tile> tiles = new TopKList<>(2);
+		// Collection<Tile> tiles = new CoveringMinimals();
 		// sc: start column, sr: start row, ec: end column, er: end row
 		int psr = 0;
 		int per = rankMat.length;
@@ -171,10 +176,16 @@ public class RankExpander
 			}
 		}
 
+		// Tile tile = tiles.get(0);
+		// for (int r = tile.sr; r <= tile.er; r++)
 		// {
+		// for (int c = tile.sc; c <= tile.ec; c++)
 		// {
+		// rankMat[r][c] = rankMat.length * 3;
 		// }
 		// }
+		//
+		// allTiles.add(tile);
 		// }
 		out.flush();
 		return tiles;
