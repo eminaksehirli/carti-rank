@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,17 +31,17 @@ public class Tester
 		// int numOfItems = 150;
 		// int clusterSize = 50;
 		// InputFile input = InputFile.forMime(fileName);
-		// final String fileName =
-		// "/home/memin/research/data/synth/1d-simple/nonsep-r4d3s25.csv";
-		// int numOfItems = 75;
-		// int clusterSize = 25;
-		// InputFile input = InputFile.forMime(fileName);
-		// List<Set<Integer>> trueClusters = create3EqualClusters(clusterSize);
-		final String fileName = "/home/memin/research/data/synth/1d-simple/sep-r4d4s25-50.csv";
-		int numOfItems = 100;
-		int clusterSize = 40;
+		final String fileName = "/home/memin/research/data/synth/1d-simple/nonsep-r4d3s25.csv";
+		int numOfItems = 75;
+		int clusterSize = 25;
 		InputFile input = InputFile.forMime(fileName);
-		List<Set<Integer>> trueClusters = createClusters(25, 50, 25);
+		List<Set<Integer>> trueClusters = create3EqualClusters(clusterSize);
+		// final String fileName =
+		// "/home/memin/research/data/synth/1d-simple/sep-r4d4s25-50.csv";
+		// int numOfItems = 100;
+		// int clusterSize = 30;
+		// InputFile input = InputFile.forMime(fileName);
+		// List<Set<Integer>> trueClusters = createClusters(25, 50, 25);
 
 		out = new PrintStream(File.createTempFile(
 				"TilerLog-" + new File(fileName).getName(), ".txt"));
@@ -107,7 +108,7 @@ public class Tester
 
 			{
 				long start = currentTimeMillis();
-				List<Tile> tiles = expander.runFor(theta, topK);
+				Collection<Tile> tiles = expander.runFor(theta, topK);
 				times.put("expan", theta, currentTimeMillis() - start);
 
 				coverEvaluateAndPrint(tiles, trueClusters, theta, numOfItems, "expCov");
@@ -144,12 +145,12 @@ public class Tester
 		return cover;
 	}
 
-	private static Set<Integer> flatten(List<Tile> tiles)
+	private static Set<Integer> flatten(Collection<Tile> tiles)
 	{
 		Set<Integer> cover = new HashSet<>();
 		for (Tile tile : tiles)
 		{
-			for (int val : tile.cols)
+			for (int val = tile.sc; val < tile.ec; val++)
 			{
 				cover.add(val);
 			}
@@ -157,7 +158,7 @@ public class Tester
 		return cover;
 	}
 
-	private static void coverEvaluateAndPrint(List<Tile> tiles,
+	private static void coverEvaluateAndPrint(Collection<Tile> tiles,
 			List<Set<Integer>> trueClusters, int theta, int numOfItems,
 			final String name)
 	{
@@ -168,7 +169,7 @@ public class Tester
 		evaluatePrint(coverTiles, trueClusters, theta, name, coverage);
 	}
 
-	private static void evaluatePrint(List<Tile> tiles,
+	private static void evaluatePrint(Collection<Tile> tiles,
 			List<Set<Integer>> trueClusters, int theta, final String name,
 			double coverage)
 	{
@@ -185,13 +186,13 @@ public class Tester
 		}
 	}
 
-	private static List<Set<Integer>> tiles2Clusters(List<Tile> tiles)
+	private static List<Set<Integer>> tiles2Clusters(Collection<Tile> tiles)
 	{
 		List<Set<Integer>> clusters = new ArrayList<>(tiles.size());
 		for (Tile tile : tiles)
 		{
 			Set<Integer> cl = new HashSet<>();
-			for (int obj : tile.cols)
+			for (int obj : tile.cols())
 			{
 				cl.add(obj);
 			}
