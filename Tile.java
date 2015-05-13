@@ -1,7 +1,16 @@
 package cart.kulua;
 
+/**
+ * Defines a rectangular contiguous tile with a score and four corners, all of
+ * which are inclusive. sc: start column, sr: start row, ec: end column, er: end
+ * row
+ * 
+ * @author M. Emin Aksehirli
+ * 
+ */
 class Tile implements Comparable<Tile>
 {
+	private static DirectMapper Direct_Mapper = new DirectMapper();
 	double score;
 	// int[] rows, cols;
 	private IdMapper mapper;
@@ -17,16 +26,8 @@ class Tile implements Comparable<Tile>
 		this.sc = sc;
 		this.er = er;
 		this.ec = ec;
-		this.mapper = new DirectMapper();
+		this.mapper = Direct_Mapper;
 	}
-
-	// Tile(double score, int[] rows, int[] cols)
-	// {
-	// this.score = score;
-	// this.rows = rows;
-	// this.cols = cols;
-	// this.mapper = new DirectMapper();
-	// }
 
 	void setMapper(IdMapper mapper)
 	{
@@ -44,13 +45,6 @@ class Tile implements Comparable<Tile>
 	{
 		return String.format("%f, [%d-%d]~[%d-%d]", score, sr, er, sc, ec);
 	}
-
-	// @Override
-	// public String toString()
-	// {
-	// return score + ", " + Arrays.toString(mapper.map(rows)) + "~"
-	// + Arrays.toString(mapper.map(cols));
-	// }
 
 	static interface IdMapper
 	{

@@ -128,7 +128,7 @@ public class RankBinaryExtender
 				int er = tile_2.er;
 				int ec = tile_2.ec;
 				int score = scoreOfFreqTile(theta, rankMat, sc, sr, ec + 1, er + 1);
-				Tile newTile = RankNaiveTiler.newTile(score, sr, sc, er - 1, ec - 1);
+				Tile newTile = new Tile(score, sr, sc, er - 1, ec - 1);
 				mergeMap.put(newTile.score, new int[]
 				{ it.previousIndex(), it2.previousIndex() });
 
@@ -183,7 +183,7 @@ public class RankBinaryExtender
 			final int end = freq.getKey() - 1;
 			int score = scoreOfFreqTile(theta, rankMat, start, start, freq.getKey(),
 					freq.getKey());
-			Tile tile = RankNaiveTiler.newTile(score, start, start, end, end);
+			Tile tile = new Tile(score, start, start, end, end);
 
 			freqTiles.add(tile);
 			tiles.add(tile);
