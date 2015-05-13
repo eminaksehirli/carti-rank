@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import cart.io.InputFile;
-import cart.maximizer.CartiMaximizer;
-import cart.maximizer.OneDCartifier;
+import be.uantwerpen.adrem.cart.io.InputFile;
+import be.uantwerpen.adrem.cart.maximizer.CartiMaximizer;
+import be.uantwerpen.adrem.cart.maximizer.OneDCartifier;
 
 public class OneDimRunner
 {
