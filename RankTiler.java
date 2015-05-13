@@ -88,11 +88,6 @@ public class RankTiler
 
 		for (int i = 0; i < topK; i++)
 		{
-			// tiles = new TopKList<>(1);
-			// Collection<Tile> tiles = new CoveringMinimals();
-			// sc: start column, sr: start row, ec: end column, er: end row
-			// int psr = 0;
-			// int per = rankMat.length;
 			Tile tile = matTiler.findBestTile(rankMat);
 
 			if (tile == null)
