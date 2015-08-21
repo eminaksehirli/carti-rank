@@ -1,8 +1,6 @@
 package cart.kulua;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ import dm.cartification.rank.RankCartifier;
 
 public class RankTiler
 {
-
 	public static RankTiler Naive(InputFile input, int numOfItems, int dimIx)
 	{
 		return new RankTiler(input, numOfItems, dimIx, new RankNaiveTiler());
@@ -69,7 +66,7 @@ public class RankTiler
 		db = SortedDb.from(dataArr, dimIx);
 	}
 
-	protected Collection<Tile> runFor(int theta, int topK) throws IOException
+	protected List<Tile> runFor(int theta, int topK)
 	{
 		out.println(theta);
 		int[][] rankMat = rankMatOf(db, numOfItems);
@@ -106,27 +103,16 @@ public class RankTiler
 		}
 		out.flush();
 		return allTiles;
-		// List<Tile> coverTiles = new ArrayList<>();
-		// Set<Integer> cover = RankTiler.findCoveringTiles(tiles, coverTiles);
-
-		// System.out.println("# Coverage: " + cover.size() + " of " + numOfItems);
-		// printMerge(mergeMap, coverTiles);
-		// return coverTiles;
 	}
 
 	public static int[][] rankMatOf(SortedDb db, int numOfCarts)
-			throws IOException
 	{
 		Cartifier cartifier = new Cartifier(db.db);
 
-		// String filename = "/a/cartified.gz";
-		File tempFile = File.createTempFile("carts-", ".gz");
-		tempFile.deleteOnExit();
-		String filename = tempFile.getAbsolutePath();
 		cartifier.cartifyNumeric(new int[]
-		{ db.dimIx }, filename);
+		{ db.dimIx }, null);
+		int[][] carts = cartifier.getCartsAsArrays();
 
-		int[][] carts = RankCartifier.readCarts(filename, numOfCarts);
 		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfCarts, carts);
 		return rankMat;
 	}
@@ -186,5 +172,4 @@ public class RankTiler
 		}
 		return db;
 	}
-
 }
