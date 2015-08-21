@@ -4,21 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import tk.memin.dm.matrix.MatrixVisualiser;
 import be.uantwerpen.adrem.cart.io.InputFile;
 
 public class RankSubspace
 {
+	private static final int ClusterPerDim = 40;
+
 	public static class SubCluster
 	{
 		public int[] ids;
-		public Set<Integer> dims;
+		public int[] dims;
 
-		public SubCluster(int[] ids, Set<Integer> dims)
+		public SubCluster(int[] ids, int[] dims)
 		{
 			this.ids = ids;
 			this.dims = dims;
@@ -27,7 +26,8 @@ public class RankSubspace
 		@Override
 		public String toString()
 		{
-			return "[" + ids.length + "] " + dims + " " + Arrays.toString(ids);
+			return "[" + ids.length + "] " + Arrays.toString(dims) + " "
+					+ Arrays.toString(ids);
 		}
 	}
 
@@ -39,6 +39,8 @@ public class RankSubspace
 	private int minLength;
 	private int[][][] dimMatrices;
 	private int[][] dimLoc2Ids;
+	private int[][][] dimThetaMatrices;
+	private int maxDims;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -50,8 +52,9 @@ public class RankSubspace
 		// final int startDimIx = 0;
 
 		RankSubspace miner = new RankSubspace(input);
-		List<SubCluster> tiles = miner.runFor(numOfClusters, theta);
+		List<SubCluster> tiles = miner.runFor(70, theta);
 
+		System.out.println("Herro!");
 		for (SubCluster tile : tiles)
 		{
 			System.out.println(tile);
@@ -63,15 +66,24 @@ public class RankSubspace
 		this.input = input;
 	}
 
-	public List<SubCluster> runFor(int numOfClusters, int theta)
+	public List<SubCluster> runFor(int minLength, int theta, int maxDims)
 			throws IOException
+	{
+		this.maxDims = maxDims;
+		return runFor(minLength, theta);
+	}
+
+	public List<SubCluster> runFor(int minLength, int theta) throws IOException
 	{
 		allTiles = new ArrayList<>();
 		this.numOfItems = input.getData().size();
 		this.numOfDims = input.getData().get(0).length;
 
-//		minLength = theta / 3;
-		minLength = 50;
+		if (maxDims == 0)
+		{
+			this.maxDims = numOfDims + 1;
+		}
+		this.minLength = minLength;
 
 		dimMatrices = new int[numOfDims][][];
 		dimLoc2Ids = new int[numOfDims][];
@@ -83,16 +95,26 @@ public class RankSubspace
 			// System.out.println("Matrix for dim " + dimIx + "/" + numOfDims
 			// + " is created.");
 		}
+		dimThetaMatrices = new int[numOfDims][dimMatrices[0].length][dimMatrices[0][0].length];
+
+		for (int i = 0; i < dimMatrices.length; i++)
+		{
+			for (int j = 0; j < dimMatrices[i].length; j++)
+			{
+				for (int j2 = 0; j2 < dimMatrices[i][j].length; j2++)
+				{
+					dimThetaMatrices[i][j][j2] = dimMatrices[i][j][j2] - theta;
+				}
+			}
+		}
 
 		for (int startDimIx = 0; startDimIx < numOfDims; startDimIx++)
 		{
 			RankTiler tiler_s = RankTiler.SquareExpander(input, numOfItems,
 					startDimIx);
 
-			Collection<Tile> c0 = tiler_s.runFor(theta, numOfClusters);
-			// Collection<Tile> c1 = squareTiler_1.runFor(0, 0);
+			Collection<Tile> c0 = tiler_s.runFor(theta, 1000);
 
-			// int[][] mat_0 = RankTiler.rankMatOf(tiler_s.db, numOfItems);
 			// if (debug)
 			// {
 			// MatrixVisualiser.showFrame(mat_0);
@@ -100,6 +122,10 @@ public class RankSubspace
 			List<int[]> tileIds = new ArrayList<>();
 			for (Tile tile : c0)
 			{
+				if (tile.er - tile.sr < minLength)
+				{
+					continue;
+				}
 				int[] ids = tiler_s.db.loc2Ids(tile.sr, tile.er);
 				Arrays.sort(ids);
 				tileIds.add(ids);
@@ -112,170 +138,109 @@ public class RankSubspace
 			// }
 			// System.out.println("----");
 
-			List<Integer> allDims = new ArrayList<>();
-			for (int i = 0; i < numOfDims; i++)
-			{
-				allDims.add(i);
-			}
-
-			Set<Integer> dimCandidates = new HashSet<>(allDims);
-			dimCandidates.remove(startDimIx);
-			Set<Integer> freqDims = new HashSet<>();
-			freqDims.add(startDimIx);
+			int[] freqDims = new int[]
+			{ startDimIx };
 
 			for (int[] tile : tileIds)
 			{
 				addCluster(tile, freqDims);
-				checkForMore(tile, dimCandidates, freqDims, (int) (theta * .95));
+				checkForMore(tile, freqDims);
 			}
 		}
 		return allTiles;
 	}
 
-	private void checkForMore(int[] tile, Set<Integer> dimCandidates,
-			Set<Integer> freqDims, int theta) throws IOException
+	private void checkForMore(int[] tile, int[] freqDims)
+			throws IOException
 	{
-		final int newTheta = (int) (theta * .95);
+		final int firstCandidateDim = freqDims[freqDims.length - 1]+1;
 
-		for (int dimIx : dimCandidates)
+		for (int dimIx = firstCandidateDim; dimIx < numOfDims; dimIx++)
 		{
-			// RankTiler tiler = RankTiler.SquareExpander(input, numOfItems, dimIx);
-			List<int[]> nextTiles = refineTile(dimIx, tile, theta);
+			List<int[]> nextTiles = refineTile(dimIx, tile);
 
-//			System.out.println("For dim " + dimIx + " and " + freqDims + ":"
-//					+ nextTiles.size());
+			// System.out.println("For dim " + dimIx + " and "
+			// + Arrays.toString(freqDims) + ":" + nextTiles.size());
 
-			Set<Integer> tileDims = new HashSet<>(freqDims);
-			tileDims.add(dimIx);
-			Set<Integer> tileDimCandidates = new HashSet<>(dimCandidates);
-			tileDimCandidates.remove(dimIx);
+			int[] tileDims = Arrays.copyOf(freqDims, freqDims.length + 1);
+			tileDims[tileDims.length - 1] = dimIx;
 
 			for (int[] nextTile : nextTiles)
 			{
 				if (nextTile.length > minLength)
 				{
 					addCluster(nextTile, tileDims);
-					checkForMore(nextTile, tileDimCandidates, tileDims, newTheta);
+					if (freqDims.length < maxDims)
+					{
+						checkForMore(nextTile, tileDims);
+					}
 				}
 			}
 		}
 	}
 
-	private void addCluster(int[] nextTile, Set<Integer> tileDims)
+	private void addCluster(int[] nextTile, int[] tileDims)
 	{
 		allTiles.add(new SubCluster(nextTile, tileDims));
 	}
 
-	// private static List<int[]> refineAndPrintDim(final int dimIx,
-	// InputFile input, List<int[]> tileIds) throws IOException
-	// {
-	// RankTiler tiler = RankTiler.SquareExpander(input, numOfItems, dimIx);
-	// List<int[]> nextTiles = refineTiles(tiler.db, tileIds);
-	// for (int[] tile : nextTiles)
-	// {
-	// System.out.println(tile.length + ": " + Arrays.toString(tile));
-	// }
-	// return nextTiles;
-	// }
-
-	private List<int[]> refineTile(int dimIx, int[] ids, int theta)
-			throws IOException
+	private List<int[]> refineTile(int dimIx, int[] ids)
 	{
 		List<int[]> nextTiles = new ArrayList<>();
-		// // matrix of the next dimension
-		// int[][] mat_n = RankTiler.rankMatOf(nextDb, numOfItems);
-		// // loc2Ids of the next dimension matrix
-		// int[] loc2Ids_n = nextDb.loc2Ids(0, numOfItems - 1);
 
-		// loc2Ids of the conditional matrix
-		int[] loc2Ids_cond = new int[ids.length];
-
-		int[][] condMat = createCondMatrix(dimIx, ids, theta, loc2Ids_cond);
-
-		RankSquareExpander tiler = new RankSquareExpander();
-
-		List<Tile> tiles = new ArrayList<>();
-		for (int i = 0; i < 2; i++)
-		{
-			Tile tile = tiler.findBestTile(condMat);
-			if (tile == null)
-			{
-				break;
-			}
-			tiles.add(tile);
-			for (int r = tile.sr; r <= tile.er; r++)
-			{
-				for (int c = tile.sc; c <= tile.ec; c++)
-				{
-					condMat[r][c] = condMat.length * 3;
-				}
-			}
-		}
-
-		for (Tile t : tiles)
-		{
-			// System.out.print((t.er - t.sr + 1) + ": ");
-			int[] cluster = new int[t.er - t.sr + 1];
-			for (int i = t.sr; i <= t.er; i++)
-			{
-				cluster[i - t.sr] = loc2Ids_cond[i];
-				// System.out.print(loc2Ids_comb[i] + ",");
-			}
-			// System.out.println();
-			Arrays.sort(cluster);
-			nextTiles.add(cluster);
-			// System.out.println(cluster);
-		}
-		// System.out.println();
-		return nextTiles;
-	}
-
-	private int[][] createCondMatrix(int dimIx, int[] ids, int theta,
-			int[] loc2Ids_cond)
-	{
-		// matrix of the next dimension
-		int[][] mat_n = dimMatrices[dimIx];
-		// loc2Ids of the next dimension matrix
 		int[] loc2Ids_n = dimLoc2Ids[dimIx];
-		// System.out.println(ids.length + ": " + Arrays.toString(ids));
+
 		boolean[] toAdd = new boolean[numOfItems];
 		for (int id : ids)
 		{
 			toAdd[id] = true;
 		}
-		// conditional matrix
-		int[][] condMat = new int[ids.length][ids.length];
 
-		int new_i = 0;
-		for (int i = 0; i < numOfItems; i++)
+		int[] ixs = new int[ids.length];
+		int j = 0;
+		for (int i = 0; i < loc2Ids_n.length; i++)
 		{
 			if (toAdd[loc2Ids_n[i]])
 			{
-				loc2Ids_cond[new_i] = loc2Ids_n[i];
-				int new_j = 0;
-				for (int j = 0; j < numOfItems; j++)
-				{
-					if (toAdd[loc2Ids_n[j]])
-					{
-						condMat[new_i][new_j] = mat_n[i][j];
-						new_j++;
-					}
-				}
-				new_i++;
+				ixs[j] = i;
+				j++;
 			}
 		}
 
-		for (int i = 0; i < condMat.length; i++)
+		List<Tile> tiles = new ArrayList<>();
+		for (int i = 0; i < ClusterPerDim; i++)
 		{
-			for (int j = 0; j < condMat[i].length; j++)
+			RankMatTiler tiler = new RankSquareFastExpander(ixs);
+			Tile tile = tiler.findBestTile(dimThetaMatrices[dimIx]);
+			if (tile == null)
 			{
-				condMat[i][j] -= theta;
+				break;
 			}
+			tiles.add(tile);
+
+			int[] cluster = new int[tile.er - tile.sr + 1];
+			for (int ij = tile.sr; ij <= tile.er; ij++)
+			{
+				cluster[ij - tile.sr] = loc2Ids_n[ixs[ij]];
+			}
+			Arrays.sort(cluster);
+			nextTiles.add(cluster);
+
+			int newSize = ixs.length - tile.er + tile.sr - 1;
+			int[] newIxs = new int[newSize];
+
+			for (int ij = 0; ij < tile.sr; ij++)
+			{
+				newIxs[ij] = ixs[ij];
+			}
+			for (int ij = tile.er + 1; ij < ixs.length; ij++)
+			{
+				newIxs[ij - tile.er - 1] = ixs[ij];
+			}
+			ixs = newIxs;
+
 		}
-		if (debug)
-		{
-			MatrixVisualiser.showFrame(condMat);
-		}
-		return condMat;
+
+		return nextTiles;
 	}
 }
