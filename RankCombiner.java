@@ -14,6 +14,7 @@ public class RankCombiner
 {
 	private static int theta;
 	private static int numOfItems;
+	private static boolean debug = false;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -28,8 +29,10 @@ public class RankCombiner
 		// Collection<Tile> c1 = squareTiler_1.runFor(0, 0);
 
 		int[][] mat_0 = RankTiler.rankMatOf(tiler_0.db, numOfItems);
-		MatrixVisualiser.showFrame(mat_0);
-
+		if (debug)
+		{
+			MatrixVisualiser.showFrame(mat_0);
+		}
 		List<int[]> tileIds = new ArrayList<>();
 		for (Tile tile : c0)
 		{
@@ -46,7 +49,7 @@ public class RankCombiner
 		// System.out.println("----");
 
 		List<int[]> nextTiles = tileIds;
-		for (int dimIx = 1; dimIx < 16; dimIx += 3)
+		for (int dimIx = 1; dimIx < 16; dimIx += 2)
 		{
 			theta = (int) (theta * .95);
 			System.out.println("---- theta: " + theta);
@@ -62,7 +65,10 @@ public class RankCombiner
 					removed++;
 				}
 			}
-			System.in.read();
+			if (debug)
+			{
+				System.in.read();
+			}
 		}
 
 		// nextTiles = refineAndPrintDim(7, input, nextTiles);
@@ -136,7 +142,10 @@ public class RankCombiner
 					newMat[i][j] -= theta;
 				}
 			}
-			MatrixVisualiser.showFrame(newMat);
+			if (debug)
+			{
+				MatrixVisualiser.showFrame(newMat);
+			}
 
 			RankSquareExpander tiler = new RankSquareExpander();
 
