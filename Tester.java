@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +36,7 @@ public class Tester
 	private static final String RankTiling = "Rank-Tiling";
 	private static final String NaiveTiling = "Naive-Tiling";
 	private static final String RankSquare = "Rank-Square";
+	private static final String RankSquareTopK = "Rank-Square-TopK";
 	private static PrintStream logOut;
 	private static String dataSetName;
 	private static int numOfItems;
@@ -62,26 +65,38 @@ public class Tester
 		// List<Set<Integer>> trueClusters = createClusters(25, 50, 25);
 
 		List<TestSet> tests = Arrays.asList(
-				new TestSet(dir + "ns25.mime", 75, 9, 50, create3EqualClusters(25)),//
-				new TestSet(dir + "ns50.mime", 150, 9, 75, create3EqualClusters(50)),//
-				new TestSet(dir + "s3.mime", 100, 9, 60, createClusters(25, 50, 25)),//
-				new TestSet(dir + "vs4.mime", 190, 15, 100, createClusters(25, 40, 55,
-						70)),//
-				new TestSet(dir + "vs5.mime", 200, 15, 100, createClusters(50, 25, 50,
-						25, 50)),//
-				new TestSet(dir + "vs6.mime", 180, 10, 100, createClusters(15, 30, 45,
-						45, 30, 15))//
+				new TestSet(dir + "ns25.mime", 75, 10, 50, 10, create3EqualClusters(25)),//
+				new TestSet(dir + "ns50.mime",
+						150,
+						15,
+						75,
+						15,
+						create3EqualClusters(50)),//
+				new TestSet(dir + "s3.mime",
+						100,
+						10,
+						60,
+						10,
+						createClusters(25, 50, 25)),//
+				new TestSet(dir + "vs4.mime", 190, 15, 100, 15, createClusters(25, 40,
+						55, 70)),//
+				new TestSet(dir + "vs5.mime", 200, 15, 100, 15, createClusters(50, 25,
+						50, 25, 50)),//
+				new TestSet(dir + "vs6.mime", 180, 10, 100, 10, createClusters(15, 30,
+						45, 45, 30, 15))//
 		);
 
 		// System.out.println("Data_Method\tTopK\tTheta\tF1-Precision\tF1-Recall\tCoverage");
-		for (TestSet testSet : tests)
+		for (TestSet testData : tests)
 		{
-			final String fileName = testSet.fileName;
+			final String fileName = testData.fileName;
 			dataSetName = new File(fileName).getName();
+			int minSize = testData.minSize;
+
 			// int numOfItems = testSet.numOfItems;
 			// int clusterSize = 30;
-			List<Set<Integer>> trueClusters = testSet.trueClusters;
-			numOfItems = testSet.numOfItems;
+			List<Set<Integer>> trueClusters = testData.trueClusters;
+			numOfItems = testData.numOfItems;
 			resultsPre = new TreeMap<>();
 			resultsRec = new TreeMap<>();
 			resultsCov = new TreeMap<>();
@@ -98,7 +113,7 @@ public class Tester
 			// Map<String, Long> times = new HashMap<>();
 
 			// RankBinaryExtender binary = new RankBinaryExtender(input, numOfItems);
-			RankTiler tiler = RankTiler.Naive(input, testSet.numOfItems, 0);
+			RankTiler tiler = RankTiler.Naive(input, testData.numOfItems, 0);
 			BinaryTiler binaryC = new BinaryTiler(input);
 			BinarySquareTiler binaryS = new BinarySquareTiler(input);
 			RankTiler expander = RankTiler.Expander(input, numOfItems, 0);
@@ -111,7 +126,7 @@ public class Tester
 			// for (int theta = 15; theta < 40; theta += 1)
 			// for (int theta = 25; theta < 30; theta += 5)
 
-			for (int theta = testSet.ts; theta < testSet.te; theta++)
+			for (int theta = testData.ts; theta < testData.te; theta++)
 			{
 				resultsPre.put(theta, new HashMap<String, Double>());
 				resultsRec.put(theta, new HashMap<String, Double>());
@@ -133,9 +148,19 @@ public class Tester
 							dataArr, theta);
 					final String name = Cartification;
 					// times.put(name, theta, currentTimeMillis() - start);
+
+					for (Iterator<Entry<Integer, Integer>> it = freqs.entrySet()
+							.iterator(); it.hasNext();)
+					{
+						Entry<Integer, Integer> freq = it.next();
+						if (freq.getKey() - freq.getValue() < minSize)
+						{
+							it.remove();
+						}
+					}
 					resultsTime.get(theta).put(name, currentTimeMillis() - start);
-					evaluateFreqs(name, freqs, trueClusters, testSet.trueClusters.size(),
-							theta, testSet);
+					evaluateFreqs(name, freqs, trueClusters,
+							testData.trueClusters.size(), theta, testData);
 				}
 
 				// {
@@ -165,18 +190,18 @@ public class Tester
 				// }
 				// }
 
-//				{
-//					long start = currentTimeMillis();
-//					Collection<Tile> tiles = tiler.runFor(theta, topK);
-//					// times.put("tiler", theta, currentTimeMillis() - start);
-//
-//					resultsTime.get(theta).put(NaiveTiling, currentTimeMillis() - start);
-//					// coverEvaluateAndPrint(tiles, trueClusters, theta,
-//					// testSet.numOfItems, "tilCov");
-//					double coverage = flatten(tiles).size()
-//							/ ((double) testSet.numOfItems);
-//					evaluatePrint(tiles, trueClusters, theta, NaiveTiling, coverage);
-//				}
+				// {
+				// long start = currentTimeMillis();
+				// Collection<Tile> tiles = tiler.runFor(theta, topK);
+				// // times.put("tiler", theta, currentTimeMillis() - start);
+				//
+				// resultsTime.get(theta).put(NaiveTiling, currentTimeMillis() - start);
+				// // coverEvaluateAndPrint(tiles, trueClusters, theta,
+				// // testSet.numOfItems, "tilCov");
+				// double coverage = flatten(tiles).size()
+				// / ((double) testSet.numOfItems);
+				// evaluatePrint(tiles, trueClusters, theta, NaiveTiling, coverage);
+				// }
 
 				{
 					long start = currentTimeMillis();
@@ -188,7 +213,7 @@ public class Tester
 					// coverEvaluateAndPrint(tiles, trueClusters, theta,
 					// testSet.numOfItems, "expCov");
 					double coverage = flatten(tiles).size()
-							/ ((double) testSet.numOfItems);
+							/ ((double) testData.numOfItems);
 					evaluatePrint(tiles, trueClusters, theta, BinaryCols, coverage);
 
 					List<Tile> transTiles = new ArrayList<>(tiles.size());
@@ -197,7 +222,7 @@ public class Tester
 						transTiles.add(new Tile(t.score, t.sc, t.sr, t.ec, t.er));
 					}
 					double tCoverage = flatten(transTiles).size()
-							/ ((double) testSet.numOfItems);
+							/ ((double) testData.numOfItems);
 					evaluatePrint(transTiles, trueClusters, theta, BinaryRows, tCoverage);
 				}
 
@@ -226,16 +251,40 @@ public class Tester
 				// evaluatePrint(tiles, trueClusters, theta, RankTiling, coverage);
 				// }
 
+				// {
+				// long start = currentTimeMillis();
+				// Collection<Tile> tiles = squareTiler.runFor(theta, topK);
+				// // times.put(RankSquare, theta, currentTimeMillis() - start);
+				// resultsTime.get(theta).put(RankSquareTopK,
+				// currentTimeMillis() - start);
+				//
+				// // coverEvaluateAndPrint(tiles, trueClusters, theta,
+				// // testSet.numOfItems, "expCov");
+				// double coverage = flatten(tiles).size()
+				// / ((double) testData.numOfItems);
+				// evaluatePrint(tiles, trueClusters, theta, RankSquareTopK, coverage);
+				// }
+
 				{
 					long start = currentTimeMillis();
-					Collection<Tile> tiles = squareTiler.runFor(theta, topK);
+					List<Tile> tiles = squareTiler.runFor(theta, 100);
+					// List<Tile> tiles = new ArrayList<>();
+					for (Iterator<Tile> it = tiles.iterator(); it.hasNext();)
+					{
+						Tile tile = it.next();
+						int size = tile.er - tile.sr + 1;
+						if (size < minSize)
+						{
+							it.remove();
+						}
+					}
 					// times.put(RankSquare, theta, currentTimeMillis() - start);
 					resultsTime.get(theta).put(RankSquare, currentTimeMillis() - start);
 
 					// coverEvaluateAndPrint(tiles, trueClusters, theta,
 					// testSet.numOfItems, "expCov");
 					double coverage = flatten(tiles).size()
-							/ ((double) testSet.numOfItems);
+							/ ((double) testData.numOfItems);
 					evaluatePrint(tiles, trueClusters, theta, RankSquare, coverage);
 				}
 
@@ -258,16 +307,16 @@ public class Tester
 			// {
 			// System.out.println(timeRow.getKey() + " : " + timeRow.getValue());
 			// }
-			resultsPre.remove(testSet.ts);
-			resultsRec.remove(testSet.ts);
-			resultsCov.remove(testSet.ts);
-			resultsTime.remove(testSet.ts);
-			resultsSize.remove(testSet.ts);
-			printResults(resultsPre, testSet.fileName + "_P.dat");
-			printResults(resultsRec, testSet.fileName + "_R.dat");
-			printResults(resultsCov, testSet.fileName + "_C.dat");
-			printResults(resultsTime, testSet.fileName + "_time.dat");
-			printResults(resultsSize, testSet.fileName + "_size.dat");
+			resultsPre.remove(testData.ts);
+			resultsRec.remove(testData.ts);
+			resultsCov.remove(testData.ts);
+			resultsTime.remove(testData.ts);
+			resultsSize.remove(testData.ts);
+			printResults(resultsPre, testData.fileName + "_P.dat");
+			printResults(resultsRec, testData.fileName + "_R.dat");
+			printResults(resultsCov, testData.fileName + "_C.dat");
+			printResults(resultsTime, testData.fileName + "_time.dat");
+			printResults(resultsSize, testData.fileName + "_size.dat");
 		}
 	}
 
@@ -291,9 +340,12 @@ public class Tester
 		// outQ.println();
 		// }
 
+		// String[] methods = new String[]
+		// { RankTiling, RankSquare, BinaryCols, BinaryRows, BinarySq,
+		// Cartification,
+		// NaiveTiling };
 		String[] methods = new String[]
-		{ RankTiling, RankSquare, BinaryCols, BinaryRows, BinarySq, Cartification,
-				NaiveTiling };
+		{ RankSquare, Cartification };
 		outQ.print("Theta");
 		for (String method : methods)
 		{
@@ -421,7 +473,9 @@ public class Tester
 		logOut.println("===== " + name + " " + " theta:" + theta);
 		for (Set<Integer> cluster : clusters)
 		{
-			logOut.println(cluster);
+			ArrayList<Integer> c = new ArrayList<>(cluster);
+			Collections.sort(c);
+			logOut.println(c);
 		}
 	}
 
@@ -521,15 +575,17 @@ public class Tester
 		private final int ts;
 		private final int te;
 		private final List<Set<Integer>> trueClusters;
+		private int minSize;
 
 		public TestSet(String fileName, int numOfItems, int ts, int te,
-				List<Set<Integer>> trueClusters)
+				int minSize, List<Set<Integer>> trueClusters)
 		{
 			this.fileName = fileName;
 			this.numOfItems = numOfItems;
 			this.ts = ts;
 			this.te = te;
 			this.trueClusters = trueClusters;
+			this.minSize = minSize;
 		}
 	}
 }
