@@ -1,4 +1,4 @@
-package cart.kulua.performance;
+package be.uantwerpen.adrem.cart.rank.performance;
 
 import static java.lang.System.currentTimeMillis;
 

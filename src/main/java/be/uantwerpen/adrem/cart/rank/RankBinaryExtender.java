@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 import java.io.File;
 import java.io.IOException;

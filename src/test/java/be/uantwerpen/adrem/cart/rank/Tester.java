@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 import static java.lang.System.currentTimeMillis;
 import static tk.memin.dm.cluster.evaluator.AdjustedRandIndex.addComplement;

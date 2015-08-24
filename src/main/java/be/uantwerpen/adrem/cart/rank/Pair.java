@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 class Pair implements Comparable<Pair>
 {

@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 /**
  * Defines a rectangular contiguous tile with a score and four corners, all of

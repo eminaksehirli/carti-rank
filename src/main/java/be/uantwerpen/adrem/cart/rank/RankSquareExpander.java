@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 public class RankSquareExpander extends RankMatTiler
 {

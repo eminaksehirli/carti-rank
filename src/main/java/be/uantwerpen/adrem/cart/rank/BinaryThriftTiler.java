@@ -1,4 +1,4 @@
-package cart.kulua;
+package be.uantwerpen.adrem.cart.rank;
 
 import static be.uantwerpen.adrem.cart.maximizer.MaximalMinerCombiner.getId2Ord;
 import static be.uantwerpen.adrem.cart.maximizer.MaximalMinerCombiner.getOrd2Id;
