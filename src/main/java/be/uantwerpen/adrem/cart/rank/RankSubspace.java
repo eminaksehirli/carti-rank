@@ -115,10 +115,6 @@ public class RankSubspace
 
 			Collection<Tile> c0 = tiler_s.runFor(theta, 1000);
 
-			// if (debug)
-			// {
-			// MatrixVisualiser.showFrame(mat_0);
-			// }
 			List<int[]> tileIds = new ArrayList<>();
 			for (Tile tile : c0)
 			{
@@ -151,7 +147,6 @@ public class RankSubspace
 	}
 
 	private void checkForMore(int[] tile, int[] freqDims)
-			throws IOException
 	{
 		final int firstCandidateDim = freqDims[freqDims.length - 1]+1;
 

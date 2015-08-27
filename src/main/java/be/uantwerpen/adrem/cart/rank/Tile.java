@@ -8,7 +8,7 @@ package be.uantwerpen.adrem.cart.rank;
  * @author M. Emin Aksehirli
  * 
  */
-class Tile implements Comparable<Tile>
+public class Tile implements Comparable<Tile>
 {
 	private static DirectMapper Direct_Mapper = new DirectMapper();
 	double score;
@@ -60,7 +60,7 @@ class Tile implements Comparable<Tile>
 		}
 	}
 
-	public int[] cols()
+	int[] cols()
 	{
 		int[] cols = new int[ec - sc + 1];
 		for (int c = sc; c <= ec; c++)

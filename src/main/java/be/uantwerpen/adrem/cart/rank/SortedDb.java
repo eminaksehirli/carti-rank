@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Sorts the data according to the values in the given dimension.
+ * */
 public class SortedDb
 {
 	List<List<Double>> db;
@@ -27,12 +30,12 @@ public class SortedDb
 		toSortedDb(data, pairs);
 	}
 
-	private void toSortedDb(double[][] dataArr, List<Pair> pairs)
+	private void toSortedDb(double[][] dataArr, List<Pair> sortedPairs)
 	{
 		loc2Id = new int[dataArr.length];
 		db = new ArrayList<>(dataArr.length);
 		int ix = 0;
-		for (Pair pair : pairs)
+		for (Pair pair : sortedPairs)
 		{
 			loc2Id[ix] = pair.ix;
 			List<Double> objList = new ArrayList<>(dataArr[ix].length);

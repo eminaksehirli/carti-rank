@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 import be.uantwerpen.adrem.cart.io.InputFile;
-import cart.Cartifier;
+import be.uantwerpen.adrem.cart.model.OneDimDissimilarity;
+import be.uantwerpen.adrem.cart.model.RankCartifier;
 
-import com.google.common.io.NullOutputStream;
-
-import dm.cartification.rank.RankCartifier;
+import com.google.common.io.ByteStreams;
 
 public class RankTiler
 {
@@ -107,14 +106,9 @@ public class RankTiler
 
 	public static int[][] rankMatOf(SortedDb db, int numOfCarts)
 	{
-		Cartifier cartifier = new Cartifier(db.db);
-
-		cartifier.cartifyNumeric(new int[]
-		{ db.dimIx }, null);
-		int[][] carts = cartifier.getCartsAsArrays();
-
-		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfCarts, carts);
-		return rankMat;
+		RankCartifier cartif = RankCartifier.newCartifier(db.db,
+				new OneDimDissimilarity(db.dimIx));
+		return cartif.getRankMat();
 	}
 
 	protected static Set<Integer> findCoveringTiles(Collection<Tile> tiles,
@@ -142,7 +136,7 @@ public class RankTiler
 
 	private void initializeLogOut()
 	{
-		out = new PrintStream(new NullOutputStream());
+		out = new PrintStream(ByteStreams.nullOutputStream());
 	}
 
 	static void printMatrix(int[][] rankMat, PrintStream matrixOut)

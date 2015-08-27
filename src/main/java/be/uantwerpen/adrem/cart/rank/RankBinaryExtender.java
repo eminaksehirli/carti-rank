@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,12 +15,12 @@ import java.util.Set;
 
 import be.uantwerpen.adrem.cart.io.InputFile;
 import be.uantwerpen.adrem.cart.maximizer.CartiMaximizer;
-import cart.Cartifier;
-import cern.colt.Arrays;
+import be.uantwerpen.adrem.cart.model.OneDimDissimilarity;
+import be.uantwerpen.adrem.cart.model.RankCartifier;
 
 import com.google.common.collect.HashMultimap;
 
-import dm.cartification.rank.RankCartifier;
+//import cern.colt.Arrays;
 
 public class RankBinaryExtender
 {
@@ -81,21 +82,10 @@ public class RankBinaryExtender
 		// RankTiler.topK = 1000;
 		List<Tile> tiles = new TopKList<>(1000);
 
-		// List<Pair> pairs = RankTiler.dataToPairs(dataArr);
-		//
-		// List<List<Double>> db = RankTiler.toSortedDb(dataArr, pairs);
-
 		SortedDb db = SortedDb.from(dataArr);
-		Cartifier cartifier = new Cartifier(db.db);
-
-		String filename = "/a/cartified.gz";
-		cartifier.cartifyNumeric(new int[]
-		{ 0 }, filename);
-
-		int[][] carts = RankCartifier.readCarts(filename, numOfCarts);
-		int[][] rankMat = RankCartifier.cartsToRankMatrix(numOfItems, carts);
-
-		// RankTiler.printMatrix(rankMat, out);
+		RankCartifier cartif = RankCartifier.newCartifier(db.db,
+				new OneDimDissimilarity(db.dimIx));
+		int[][] rankMat = cartif.getRankMat();
 
 		Map<Integer, Integer> freqs = findMaximals(dataArr, theta);
 		for (Entry<Integer, Integer> freq : freqs.entrySet())
@@ -138,12 +128,6 @@ public class RankBinaryExtender
 
 		out.flush();
 		return tiles;
-		// List<Tile> coverTiles = new ArrayList<>();
-		// Set<Integer> cover = RankTiler.findCoveringTiles(tiles, coverTiles);
-
-		// System.out.println("# Coverage: " + cover.size() + " of " + numOfItems);
-		// printMerge(mergeMap, coverTiles);
-		// return coverTiles;
 	}
 
 	private static void printMerge(HashMultimap<Double, int[]> mergeMap,
