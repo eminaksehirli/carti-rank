@@ -148,7 +148,7 @@ public class RankSubspace
 
 	private void checkForMore(int[] tile, int[] freqDims)
 	{
-		final int firstCandidateDim = freqDims[freqDims.length - 1]+1;
+		final int firstCandidateDim = freqDims[freqDims.length - 1] + 1;
 
 		for (int dimIx = firstCandidateDim; dimIx < numOfDims; dimIx++)
 		{
@@ -233,7 +233,10 @@ public class RankSubspace
 				newIxs[ij - tile.er - 1] = ixs[ij];
 			}
 			ixs = newIxs;
-
+			if (ixs.length < minLength)
+			{
+				break;
+			}
 		}
 
 		return nextTiles;
