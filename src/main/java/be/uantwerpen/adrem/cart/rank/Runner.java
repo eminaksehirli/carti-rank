@@ -4,7 +4,6 @@ import static java.lang.Integer.parseInt;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import be.uantwerpen.adrem.cart.io.InputFile;
@@ -56,8 +55,18 @@ public class Runner
 
 		for (SubCluster cluster : tiles)
 		{
-			System.out.println("(" + cluster.ids.length + ") "
-					+ Arrays.toString(cluster.dims) + "--" + Arrays.toString(cluster.ids));
+			System.out.print(cluster.ids.length + " - ");
+			for (int dim : cluster.dims)
+			{
+				System.out.printf("%d ", dim);
+			}
+			System.out.printf("- ");
+
+			for (int obj : cluster.ids)
+			{
+				System.out.printf("%d ", obj);
+			}
+			System.out.println();
 		}
 	}
 }
