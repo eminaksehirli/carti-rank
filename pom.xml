@@ -4,9 +4,9 @@
 	<groupId>be.uantwerpen.adrem</groupId>
 	<artifactId>carti-rank</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1</version>
 	<name>carti-rank</name>
-	<description>carti-rank algorithm.</description>
+	<description>Carti-Rank algorithm</description>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
