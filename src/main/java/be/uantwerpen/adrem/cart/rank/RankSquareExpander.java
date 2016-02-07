@@ -1,5 +1,12 @@
 package be.uantwerpen.adrem.cart.rank;
 
+/**
+ * This tiler considers only the square tiles on the diagonal. See the original
+ * paper for the explanation.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class RankSquareExpander extends RankMatTiler
 {
 	@Override

@@ -3,7 +3,6 @@ package be.uantwerpen.adrem.cart.rank;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +14,13 @@ import be.uantwerpen.adrem.cart.model.RankCartifier;
 
 import com.google.common.io.ByteStreams;
 
+/**
+ * Creates the ranked matrices for individual dimensions and finds the best K
+ * tiles in them. The best-tile finding algorithm is plugable.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class RankTiler
 {
 	public static RankTiler Naive(InputFile input, int numOfItems, int dimIx)
@@ -76,10 +82,6 @@ public class RankTiler
 				rankMat[rowIx][cIx] -= theta;
 			}
 		}
-		// RankTiler.printMatrix(rankMat, out);
-
-		// int topK = 1000;
-		// List<Tile> tiles = new TopKList<>(topK);
 		List<Tile> allTiles = new TopKList<>(topK);
 
 		for (int i = 0; i < topK; i++)
@@ -137,33 +139,5 @@ public class RankTiler
 	private void initializeLogOut()
 	{
 		out = new PrintStream(ByteStreams.nullOutputStream());
-	}
-
-	static void printMatrix(int[][] rankMat, PrintStream matrixOut)
-	{
-		for (int[] row : rankMat)
-		{
-			for (int v : row)
-			{
-				// System.out.printf("%2d ", loc2Id[v]);
-				matrixOut.printf("%3d", v);
-			}
-			matrixOut.println();
-		}
-	}
-
-	private static List<List<Double>> arr2List(double[][] dataArr)
-	{
-		List<List<Double>> db = new ArrayList<>();
-		for (double[] row : dataArr)
-		{
-			List<Double> objList = new ArrayList<>(row.length);
-			for (double val : row)
-			{
-				objList.add(val);
-			}
-			db.add(objList);
-		}
-		return db;
 	}
 }

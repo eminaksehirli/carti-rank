@@ -8,10 +8,21 @@ import java.util.List;
 
 import be.uantwerpen.adrem.cart.io.InputFile;
 
+/**
+ * This is the implementation of the main algorithm. It creates rank matrices
+ * for individual dimensions and find clusters in them. Then, extend these
+ * cluster to find subspace clusters.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class RankSubspace
 {
 	private static final int ClusterPerDim = 40;
 
+	/**
+	 * A data class for representing subspace clusters.
+	 */
 	public static class SubCluster
 	{
 		public int[] ids;
@@ -32,7 +43,6 @@ public class RankSubspace
 	}
 
 	private int numOfItems;
-	private boolean debug = false;
 	private int numOfDims;
 	private InputFile input;
 	private List<SubCluster> allTiles;
@@ -41,25 +51,6 @@ public class RankSubspace
 	private int[][] dimLoc2Ids;
 	private int[][][] dimThetaMatrices;
 	private int maxDims;
-
-	public static void main(String[] args) throws IOException
-	{
-		InputFile input = InputFile.forMime("/home/memin/research/data/synth/6c10d/6c10d.mime");
-		// InputFile input =
-		// InputFile.forMime("/home/memin/research/data/synth/6c10d/p12.mime");
-		int numOfClusters = 4;
-		int theta = 205;
-		// final int startDimIx = 0;
-
-		RankSubspace miner = new RankSubspace(input);
-		List<SubCluster> tiles = miner.runFor(70, theta);
-
-		System.out.println("Herro!");
-		for (SubCluster tile : tiles)
-		{
-			System.out.println(tile);
-		}
-	}
 
 	public RankSubspace(InputFile input)
 	{
@@ -92,8 +83,6 @@ public class RankSubspace
 			RankTiler tiler = RankTiler.SquareExpander(input, numOfItems, dimIx);
 			dimMatrices[dimIx] = RankTiler.rankMatOf(tiler.db, numOfItems);
 			dimLoc2Ids[dimIx] = tiler.db.loc2Ids(0, numOfItems - 1);
-			// System.out.println("Matrix for dim " + dimIx + "/" + numOfDims
-			// + " is created.");
 		}
 		dimThetaMatrices = new int[numOfDims][dimMatrices[0].length][dimMatrices[0][0].length];
 
@@ -127,13 +116,6 @@ public class RankSubspace
 				tileIds.add(ids);
 			}
 
-			// System.out.println("---- theta: " + theta);
-			// for (int[] tile : tileIds)
-			// {
-			// System.out.println(tile.length + ": " + Arrays.toString(tile));
-			// }
-			// System.out.println("----");
-
 			int[] freqDims = new int[]
 			{ startDimIx };
 
@@ -153,9 +135,6 @@ public class RankSubspace
 		for (int dimIx = firstCandidateDim; dimIx < numOfDims; dimIx++)
 		{
 			List<int[]> nextTiles = refineTile(dimIx, tile);
-
-			// System.out.println("For dim " + dimIx + " and "
-			// + Arrays.toString(freqDims) + ":" + nextTiles.size());
 
 			int[] tileDims = Arrays.copyOf(freqDims, freqDims.length + 1);
 			tileDims[tileDims.length - 1] = dimIx;

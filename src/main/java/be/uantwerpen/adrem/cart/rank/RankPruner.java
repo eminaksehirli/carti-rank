@@ -11,7 +11,6 @@ public class RankPruner extends RankMatTiler
 			startColumn:
 			for (int sc = 0; sc < rankMat[sr].length; sc++)
 			{
-				// int tileSum = rankMat[sr][sc];
 				while (rankMat[sr][sc] > 0 && sc < sr)
 				{
 					sc++;
@@ -21,7 +20,6 @@ public class RankPruner extends RankMatTiler
 					continue startRow;
 				}
 
-				// int prevTileSum = Integer.MAX_VALUE;
 				for (int er = sr; er < rankMat.length; er++)
 				{
 					int tileSum = 0;

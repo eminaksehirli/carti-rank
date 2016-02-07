@@ -1,5 +1,12 @@
 package be.uantwerpen.adrem.cart.rank;
 
+/**
+ * This is the most naive tiler. It computes the tile score for every possible
+ * combination.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class RankNaiveTiler extends RankMatTiler
 {
 	@Override
@@ -18,7 +25,6 @@ public class RankNaiveTiler extends RankMatTiler
 						{
 							tileSum += rankMat[r][ec];
 						}
-						// int score = tileSum - (ec - sc + 1) * (er - sr + 1) * theta;
 						int score = tileSum;
 						addTile(score, sr, sc, er, ec);
 					}

@@ -8,12 +8,31 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
+/**
+ * A list implementation that sorts and holds only the first {@code k} elements.
+ * Order of the items are determined by the {@code compare} method of {@code T}.
+ * 
+ * The elements that cannot make it to the top-k will be discarded during
+ * {@link TopKList.add}.
+ * 
+ * @author Emin Aksehirli
+ * 
+ * @param <T>
+ *          Element type of the list.
+ */
 public class TopKList<T extends Comparable<T>> implements RandomAccess,
 		List<T>, Cloneable
 {
 	ArrayList<T> list;
 	private int k;
 
+	/**
+	 * Checks whether the {@code e} can make it to the list. Inserts it to the
+	 * correct location and returns {@code true} if it can. If it cannot the
+	 * element is discarded and {@code false} is returned.
+	 * 
+	 * @return {@code true} if the element is added, {@code false} if it is not.
+	 */
 	@Override
 	public boolean add(T e)
 	{
@@ -41,6 +60,13 @@ public class TopKList<T extends Comparable<T>> implements RandomAccess,
 		return true;
 	}
 
+	/**
+	 * Initialize a Top-{@code K} list. Elements that cannot make it to the top-k
+	 * will be discarded.
+	 * 
+	 * @param k
+	 *          The size of the list.
+	 */
 	public TopKList(int k)
 	{
 		this.k = k;

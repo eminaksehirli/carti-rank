@@ -1,9 +1,29 @@
 package be.uantwerpen.adrem.cart.rank;
 
+/**
+ * Similar to {@link RankSquareExpander}, this tiler only considers square tiles
+ * on the diagonal. However, instead of the whole matrix, it only uses ranks of
+ * some of the objects indexes of which are given in the constructor.
+ * 
+ * See the paper for a more detailed explanation.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class RankSquareFastExpander extends RankMatTiler
 {
 	private int[] ixs;
 
+	/**
+	 * Similar to {@link RankSquareExpander}, this tiler only considers square
+	 * tiles on the diagonal. However, instead of the whole matrix, it only uses
+	 * ranks of some of the objects indexes of which are given in the constructor.
+	 * 
+	 * See the paper for a more detailed explanation.
+	 * 
+	 * @param ixs
+	 *          Indices in the matrix to consider.
+	 */
 	public RankSquareFastExpander(int[] ixs)
 	{
 		super();

@@ -5,7 +5,7 @@ package be.uantwerpen.adrem.cart.rank;
  * which are inclusive. sc: start column, sr: start row, ec: end column, er: end
  * row
  * 
- * @author M. Emin Aksehirli
+ * @author Emin Aksehirli
  * 
  */
 public class Tile implements Comparable<Tile>

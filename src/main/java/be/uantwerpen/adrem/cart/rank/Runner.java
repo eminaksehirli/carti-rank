@@ -10,6 +10,13 @@ import java.util.List;
 import be.uantwerpen.adrem.cart.io.InputFile;
 import be.uantwerpen.adrem.cart.rank.RankSubspace.SubCluster;
 
+/**
+ * The runner class for the algorithm. It takes the input as parameters and run
+ * the main algorithm.
+ * 
+ * @author Emin Aksehirli
+ * 
+ */
 public class Runner
 {
 	public static void main(String[] args)

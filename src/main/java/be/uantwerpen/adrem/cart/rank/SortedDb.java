@@ -6,7 +6,9 @@ import java.util.List;
 
 /**
  * Sorts the data according to the values in the given dimension.
- * */
+ * 
+ * @author Emin Aksehirli
+ */
 public class SortedDb
 {
 	List<List<Double>> db;
