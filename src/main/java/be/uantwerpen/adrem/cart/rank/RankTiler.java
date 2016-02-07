@@ -23,25 +23,10 @@ import com.google.common.io.ByteStreams;
  */
 public class RankTiler
 {
-	public static RankTiler Naive(InputFile input, int numOfItems, int dimIx)
-	{
-		return new RankTiler(input, numOfItems, dimIx, new RankNaiveTiler());
-	}
-
-	public static RankTiler Expander(InputFile input, int numOfItems, int dimIx)
-	{
-		return new RankTiler(input, numOfItems, dimIx, new RankExpander());
-	}
-
 	public static RankTiler SquareExpander(InputFile input, int numOfItems,
 			int dimIx)
 	{
 		return new RankTiler(input, numOfItems, dimIx, new RankSquareExpander());
-	}
-
-	public static RankTiler Pruner(InputFile input, int numOfItems, int dimIx)
-	{
-		return new RankTiler(input, numOfItems, dimIx, new RankPruner());
 	}
 
 	protected PrintStream out;
