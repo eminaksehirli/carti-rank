@@ -1,6 +1,6 @@
 
-CLON: Detecting Cluster Structures by Ordered Neighborhoods
-===========================================================
+Carti-Rank: Finding Subspace Clusters using Ranked Neighborhoods
+================================================================
 
 This project is an implementation of the Carti-Rank algorithm. The details can
 be found in http://adrem.uantwerpen.be/cartirank .
@@ -8,7 +8,7 @@ be found in http://adrem.uantwerpen.be/cartirank .
 
 Application
 -----------
-Carti-Rank is packaged as a runnable .jar file (clon.jar). You can run the application
+Carti-Rank is packaged as a runnable .jar file (carti-rank.jar). You can run the application
  on command line with the commands,
 
 ```
@@ -66,7 +66,7 @@ Get the latest source code from https://gitlab.com/adrem/carti-rank by using the
 command
 
 ```
-git clone https://gitlab.com/adrem/carti-clon.git
+git clone https://gitlab.com/adrem/carti-rank.git
 ```
 
 This implementation uses [Apache Maven](https://maven.apache.org/) for
